@@ -18,8 +18,13 @@ class PlaylistSpider(scrapy.Spider):
             "https://open.spotify.com/playlist/37i9dQZF1DZ06evO0LuyqI",#charlie brow
             "https://open.spotify.com/playlist/37i9dQZF1DXc2aPBXGmXrt",#justin bieber
             "https://open.spotify.com/playlist/37i9dQZF1DZ06evO3nODok",#ze vaqueiro
-            "https://open.spotify.com/playlist/37i9dQZF1DZ06evO3P7qsU"#legiao urbana
-            "https://open.spotify.com/playlist/37i9dQZF1DZ06evO1SVXaM"#michael jackeson
+            "https://open.spotify.com/playlist/37i9dQZF1DZ06evO3P7qsU,"#legiao urbana
+            "https://open.spotify.com/playlist/37i9dQZF1DZ06evO1SVXaM",#michael jackeson
+            "https://open.spotify.com/playlist/37i9dQZF1DX6cg4h2PoN9y", #bilie
+            "https://open.spotify.com/playlist/37i9dQZF1DX5KpP2LN299J",#taylor
+            "https://open.spotify.com/playlist/37i9dQZF1DZ06evO4kmXe5",#raul seixas
+            "https://open.spotify.com/playlist/37i9dQZF1DZ06evO0ENBD2",#queen
+            "https://open.spotify.com/playlist/37i9dQZF1DZ06evO3M0Fbi"#nirvana
             
         ]
 
@@ -66,6 +71,11 @@ class PlaylistSpider(scrapy.Spider):
                  cover = cover.replace("ab67616d00004851", "ab67616d0000b273")
                  
                 tempos = row.css('div[data-encore-id="text"]::text').getall()
+                
+                track_url = row.css('a[data-testid="internal-track-link"]::attr(href)').get()
+                
+                if track_url:
+                    track_url = "https://open.spotify.com" + track_url
 
                 duracao = None
                 for t in tempos:
@@ -81,7 +91,8 @@ class PlaylistSpider(scrapy.Spider):
                         "album": album,
                         "duracao": duracao,
                         "cover": cover,
-                        "album_cover": cover
+                        "album_cover": cover,
+                        "track_url" : track_url
                     }
 
             if len(vistos) == ultimo_total:

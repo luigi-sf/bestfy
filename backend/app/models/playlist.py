@@ -14,3 +14,4 @@ class Playlist(Base):
     duracao = Column(String, nullable=True)
     cover = Column(String, nullable=True)
     album_cover = Column(String, nullable=True)
+    track_url = Column(String, nullable=True)

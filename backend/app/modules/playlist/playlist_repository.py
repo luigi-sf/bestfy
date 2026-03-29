@@ -2,6 +2,7 @@ from app.models.playlist import Playlist
 from sqlalchemy.orm import Session
 from uuid import UUID
 from app.modules.playlist.playlist_schema import PlaylistCreate, PlaylistUpdate
+from app.models.playlist import Playlist
 
 
 
@@ -21,6 +22,7 @@ class PlaylistRepository:
         self.db.refresh(dbPlaylist)
 
         return dbPlaylist
+
 
     def list(self):
         return self.db.query(Playlist).all() #self.db.query e filtra oq vc vai pegar
@@ -43,6 +45,21 @@ class PlaylistRepository:
         self.db.refresh(dbPlaylist)
 
         return dbPlaylist
+    
+    def get_by_artist(self, artist_name: str):
+        return (
+        self.db.query(Playlist)
+        .filter(Playlist.artista.contains([artist_name]))
+        .all()
+    )
+        
+        
+    def get_by_album(self, album_name: str):
+        return (
+        self.db.query(Playlist)
+        .filter(Playlist.album.contains(album_name))
+        .all()
+    )
 
     def delete(self, playlist_id: UUID):
 

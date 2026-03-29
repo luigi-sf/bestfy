@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
+from typing import List
 
 class PlaylistCreate(BaseModel):
     playlist:str
@@ -9,6 +11,7 @@ class PlaylistCreate(BaseModel):
     duracao: str
     cover:str
     album_cover:str
+    track_url:str
 
 
 class PlaylistUpdate(BaseModel):
@@ -19,18 +22,20 @@ class PlaylistUpdate(BaseModel):
     cover: Optional[str] = None
     playlist: Optional[str] = None
     album_cover: Optional[str] = None
+    track_url: Optional[str] = None
     
 
 
 class PlaylistResponse(BaseModel):
-    id: int
+    id: UUID
     playlist:str
     nome: str
-    artista: str
+    artista: List[str]
     album: str
     duracao: str
     cover:str
     album_cover:str
+    track_url:str
 
     class Config:
         from_attributes = True

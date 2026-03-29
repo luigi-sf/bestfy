@@ -3,7 +3,7 @@ import type { Playlist } from "../types/playlist/playlist"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 type Props = {
-  items: Playlist[]
+  items: (Playlist & { onClick?: () => void })[]
   type?: "music" | "artist" | "album"
 }
 
@@ -65,6 +65,7 @@ export function Carousel({ items, type }: Props) {
         {items.map((item) => (
           <div
             key={item.id}
+            onClick={item.onClick}
             className="min-w-[180px] bg-zinc-900 hover:bg-zinc-800 p-4 rounded-lg cursor-pointer"
           >
             <img
@@ -73,27 +74,26 @@ export function Carousel({ items, type }: Props) {
                   ? item.album_cover || item.cover
                   : item.cover
               }
-              className={`${
-                type === "artist"
+              className={`${type === "artist"
                   ? "w-[140px] h-[140px] rounded-full"
                   : "w-full h-[150px] rounded-md"
-              } object-cover mb-4`}
+                } object-cover mb-4`}
             />
 
             <h3 className="text-sm font-semibold">
               {type === "artist"
                 ? item.artista
                 : type === "album"
-                ? item.album
-                : item.nome}
+                  ? item.album
+                  : item.nome}
             </h3>
 
             <p className="text-xs text-gray-400">
               {type === "album"
                 ? item.artista
                 : type === "music"
-                ? item.artista
-                : "Artista"}
+                  ? item.artista
+                  : "Artista"}
             </p>
           </div>
         ))}

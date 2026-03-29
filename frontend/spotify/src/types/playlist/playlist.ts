@@ -6,4 +6,5 @@ export type Playlist = {
   duracao: string
   cover: string
   album_cover:string
+  track_url:string
 }

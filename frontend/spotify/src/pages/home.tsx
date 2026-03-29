@@ -1,10 +1,14 @@
 import { useEffect, useState, useMemo } from "react"
+import { useNavigate } from "react-router-dom"
 import { Carousel } from "../components/carrosel"
 import type { Playlist } from "../types/playlist/playlist"
 
 export default function Home() {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [user, setUser] = useState<{ name: string } | null>(null)
+  const [currentEmbed, setCurrentEmbed] = useState<string | null>(null)
+
+  const navigate = useNavigate()
 
   function getGreeting() {
     const hour = new Date().getHours()
@@ -51,39 +55,50 @@ export default function Home() {
       .catch(err => console.error(err))
   }, [])
 
-  // 🔀 SHUFFLE (sem bug de render)
+  // 🎧 EMBED
+  async function openTrack(track_url: string) {
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/embed?track_url=${track_url}`
+      )
+      const data = await res.json()
+      setCurrentEmbed(data.embed)
+    } catch (err) {
+      console.error("Erro ao carregar embed:", err)
+    }
+  }
+
   const shuffled = useMemo(() => shuffleArray(playlists), [playlists])
 
-  // 🎤 ARTISTAS ÚNICOS
   const artistasUnicos = useMemo(
     () =>
       uniqueBy(
         shuffled.map(item => ({
           ...item,
           artista: Array.isArray(item.artista)
-  ? item.artista[0]
-  : item.artista?.split(",")[0]
+            ? item.artista[0]
+            : item.artista?.split(",")[0]
         })),
         "artista"
       ),
     [shuffled]
   )
 
-  // 💿 ÁLBUNS ÚNICOS
   const albunsUnicos = useMemo(
     () => uniqueBy(shuffled, "album"),
     [shuffled]
   )
 
-  // 🎯 SEÇÕES
   const musicas = shuffled.slice(0, 6)
   const artistas = artistasUnicos.slice(0, 10)
   const albuns = albunsUnicos.slice(0, 10)
 
   return (
-    <div className="bg-black text-white min-h-screen p-6">
+    <div className="bg-black text-white min-h-screen p-6 pb-40">
+
+      {/* HEADER */}
       <h1 className="text-3xl font-bold mb-6">
-        {getGreeting()}, {user?.name || "Usuário"}
+        {getGreeting()}, {user?.name || "Estranho"}
       </h1>
 
       {/* 🎵 MÚSICAS */}
@@ -93,12 +108,10 @@ export default function Home() {
         {musicas.map((item) => (
           <div
             key={item.id}
+            onClick={() => openTrack(item.track_url)}
             className="flex items-center bg-zinc-800 rounded-lg overflow-hidden hover:bg-zinc-700 transition cursor-pointer"
           >
-            <img
-              src={item.cover}
-              className="w-16 h-16 object-cover"
-            />
+            <img src={item.cover} className="w-16 h-16 object-cover" />
             <span className="ml-4 font-semibold">{item.nome}</span>
           </div>
         ))}
@@ -110,7 +123,15 @@ export default function Home() {
           <h2 className="text-2xl font-bold mt-10 mb-4">
             Artistas populares
           </h2>
-          <Carousel items={artistas} type="artist" />
+
+          <Carousel
+            items={artistas.map(a => ({
+              ...a,
+              onClick: () =>
+                navigate(`/artist/${encodeURIComponent(a.artista)}`)
+            }))}
+            type="artist"
+          />
         </>
       )}
 
@@ -120,9 +141,33 @@ export default function Home() {
           <h2 className="text-2xl font-bold mt-10 mb-4">
             Singles e álbuns que todo mundo gosta
           </h2>
-          <Carousel items={albuns} type="album" />
+          <Carousel items={albuns.map(a => ({
+            ...a,
+            onClick: () =>
+              navigate(`/album/${encodeURIComponent(a.album)}`)
+          }))}
+            type="album" />
         </>
       )}
+
+      {/* 🎧 PLAYER FIXO */}
+      {currentEmbed && (
+        <div className="fixed bottom-0 left-0 w-full bg-black border-t border-zinc-800 p-4 z-50">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-zinc-400">Tocando agora</span>
+
+            <button
+              onClick={() => setCurrentEmbed(null)}
+              className="text-white text-sm"
+            >
+              Fechar
+            </button>
+          </div>
+
+          <div dangerouslySetInnerHTML={{ __html: currentEmbed }} />
+        </div>
+      )}
+
     </div>
   )
 }

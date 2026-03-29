@@ -10,7 +10,8 @@ class SpotifyScraperPipeline:
             "album": item.get("album"),
             "duracao": item.get("duracao"),
             "cover": item.get('cover'),
-            "album_cover": item.get('cover')
+            "album_cover": item.get('cover'),
+            "track_url": item.get('track_url')
         }
 
         try:
