@@ -9,7 +9,7 @@ class UserService:
     def __init__(self, repo:UserRepository):
         self.repo = repo
         
-    
+    #CREATE
     def create(self, user: UserCreate):
         
         user_exist = self.repo.get_by_email(user.email)
@@ -23,10 +23,12 @@ class UserService:
         return self.repo.create(user)
     
     
+    #LIST
     def list (self):
         return self.repo.list()
     
     
+    #GET ID
     def get_by_id(self, user_id:UUID):
         
         user = self.repo.get_by_id(user_id)
@@ -39,7 +41,7 @@ class UserService:
             
         return user
     
-    
+    #UPDATE
     def update(self, user_id, data, current_user=None):
 
         db_user = self.repo.update(user_id, data)
@@ -49,7 +51,15 @@ class UserService:
 
         return db_user
     
+    #TOKEN IN BLACKLIST
+    def is_token_blacklisted(self, jti: str) -> bool:
+        return self.repo.is_token_blacklisted(jti)
     
+    #LOGOUT
+    def logout(self, jti: str):
+        return self.repo.blacklist_jti(jti)
+    
+    #DELETE
     def delete (self,user_id:UUID):
         
         user = self.repo.delete(user_id)

@@ -5,64 +5,39 @@ from uuid import UUID
 from app.core.database import get_db
 from app.modules.playlist.playlist_repository import PlaylistRepository
 from app.modules.playlist.playlist_service import PlaylistService
-from app.modules.playlist.playlist_schema import PlaylistUpdate, PlaylistResponse
+from app.modules.playlist.playlist_schema import PlaylistUpdate, PlaylistResponse, PlaylistCreate
 
 from app.core.security.dependencies import get_current_user, require_role
 from app.models.playlist import Playlist
-from app.models.user import User  # se você tiver User model
+from app.models.user import User 
 
 router = APIRouter()
 
 
-# 🔧 Service factory
+
 def get_playlist_service(db: Session = Depends(get_db)):
     repo = PlaylistRepository(db)
     return PlaylistService(repo)
 
 
-# 🎵 CREATE (mantive seu estilo direto no DB, mas ideal seria service)
-@router.post("/spotify")
-def criar_playlist(data: dict, db: Session = Depends(get_db)):
-    playlist = Playlist(
-        playlist=data["playlist"],
-        nome=data["nome"],
-        artista=data["artista"],
-        album=data["album"],
-        duracao=data["duracao"],
-        cover=data["cover"],
-        album_cover=data["album_cover"],
-        track_url=data["track_url"]
-    )
-
-    db.add(playlist)
-    db.commit()
-    db.refresh(playlist)
-
-    return {"msg": "salvo", "id": playlist.id}
+# CREATE
+@router.post("/spotify", response_model=PlaylistResponse)
+def criar_playlist(
+    data: PlaylistCreate,
+    service: PlaylistService = Depends(get_playlist_service)
+):
+    return service.create(data)
 
 
-# 🎵 LISTAR TODOS
-@router.get("/spotify")
-def listar_playlists(db: Session = Depends(get_db)):
-    playlists = db.query(Playlist).all()
-
-    return [
-        {
-            "id": p.id,
-            "playlist": p.playlist,
-            "nome": p.nome,
-            "artista": p.artista,
-            "album": p.album,
-            "duracao": p.duracao,
-            "cover": p.cover,
-            "album_cover": p.album_cover,
-            "track_url": p.track_url
-        }
-        for p in playlists
-    ]
+# LISTAR ALL
+@router.get("/spotify", response_model=list[PlaylistResponse])
+def listar_playlists(
+    service: PlaylistService = Depends(get_playlist_service)
+):
+    return service.list()
 
 
-# 🎤 ARTIST PAGE (CORRIGIDO)
+#  ARTIST 
 @router.get("/artist/{artist}", response_model=list[PlaylistResponse])
 def get_artist(
     artist: str,
@@ -71,6 +46,7 @@ def get_artist(
     return service.get_artist_tracks(artist)
 
 
+# ALBUM
 @router.get("/album/{album}", response_model=list[PlaylistResponse])
 def get_album(
     album: str,
@@ -78,7 +54,7 @@ def get_album(
 ):
     return service.get_album_tracks(album)
 
-# 🎧 EMBED (CORRIGIDO)
+# EMBED 
 @router.get("/embed")
 def embed(
     track_url: str,
@@ -88,7 +64,7 @@ def embed(
     return {"embed": html}
 
 
-# 🔍 GET BY ID
+# GET BY ID - ADMIN
 @router.get("/{playlist_id}", response_model=PlaylistResponse)
 def get_by_id(
     playlist_id: UUID,
@@ -98,7 +74,7 @@ def get_by_id(
     return service.get_by_id(playlist_id)
 
 
-# ✏️ UPDATE
+# UPDATE
 @router.put("/{playlist_id}", response_model=PlaylistResponse)
 def update(
     playlist_id: UUID,
@@ -109,7 +85,7 @@ def update(
     return service.update(playlist_id, playlist, current_user)
 
 
-# 🗑 DELETE
+# DELETE - ADMIN
 @router.delete("/{playlist_id}", response_model=PlaylistResponse)
 def delete(
     playlist_id: UUID,

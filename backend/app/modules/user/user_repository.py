@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 from app.modules.user.user_schema import UserCreate, UserUpdate
 from app.core.security.hashed import hash_password
+from app.models.blacklist import TokenBlacklist
 
 
 class UserRepository:
@@ -10,6 +11,7 @@ class UserRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    #CREATE
     def create(self, user: UserCreate):
 
         dbUser = User(
@@ -22,6 +24,7 @@ class UserRepository:
 
         return dbUser
 
+    #LIST
     def list(self):
         return self.db.query(User).all() #self.db.query e filtra oq vc vai pegar
 
@@ -30,7 +33,9 @@ class UserRepository:
 
     def get_by_email(self, email: str):
         return self.db.query(User).filter(User.email == email).first()
+    
 
+    #UPDATE
     def update(self, user_id: UUID, user: UserUpdate):
 
         dbUser = self.get_by_id(user_id)
@@ -45,7 +50,25 @@ class UserRepository:
         self.db.refresh(dbUser)
 
         return dbUser
+    
+    
+    #BLACKLIST
+    def blacklist_jti(self, jti: str):
+        blacklisted = TokenBlacklist(jti=jti)
 
+        self.db.add(blacklisted)
+        self.db.commit()
+
+        return True
+    
+    #TOKEN IN BLACKLIST
+    def is_token_blacklisted(self, jti: str) -> bool:
+        return self.db.query(TokenBlacklist).filter(
+        TokenBlacklist.jti == jti
+    ).first() is not None
+    
+
+    #DELETE
     def delete(self, user_id: UUID):
 
         dbUser = self.get_by_id(user_id)

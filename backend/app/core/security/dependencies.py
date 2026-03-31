@@ -6,33 +6,52 @@ from app.core.security.token import decode_token
 from app.models.blacklist import TokenBlacklist
 from app.core.database import get_db
 from app.models.user import User
+from app.modules.user.user_repository import UserRepository
 
-# 🔓 permite rotas públicas
+# permite rotas públicas
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/login', auto_error=False)
 
 
-# 🔒 USADO EM ROTAS PROTEGIDAS
-def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+# USADO EM ROTAS PROTEGIDAS
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> User:
+
     if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        raise HTTPException(401, "Token não fornecido")
 
-    black_list = db.query(TokenBlacklist).filter(TokenBlacklist.token == token).first()
-    if black_list:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token revoked")
+    try:
+        payload = decode_token(token)
+    except Exception:
+        raise HTTPException(401, "Token inválido")
 
-    payload = decode_token(token)
-    if payload is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    jti = payload.get("jti")
+    user_id = payload.get("sub")
 
-    user = db.query(User).filter(User.id == payload["user_id"]).first()
+    if not jti or not user_id:
+        raise HTTPException(401, "Token inválido")
+
+    # verifica blacklist corretamente
+    blacklisted = db.query(TokenBlacklist).filter_by(jti=jti).first()
+
+    if blacklisted:
+        raise HTTPException(401, "Token inválido (logout realizado)")
+
+    repo = UserRepository(db)
+    user = repo.get_by_id(user_id)
+
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(404, "Usuário não encontrado")
 
     return user
 
 
-# 🔓 USADO EM ROTAS PÚBLICAS
-def get_optional_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+# USADO EM ROTAS PÚBLICAS
+def get_optional_user(
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme)
+):
     if not token:
         return None
 
@@ -40,10 +59,19 @@ def get_optional_user(db: Session = Depends(get_db), token: str = Depends(oauth2
     if payload is None:
         return None
 
-    return db.query(User).filter(User.id == payload["user_id"]).first()
+    jti = payload.get("jti")
+    user_id = payload.get("sub")
 
+    if not jti or not user_id:
+        return None
 
-# 🔒 ROLE BASED ACCESS
+    blacklisted = db.query(TokenBlacklist).filter_by(jti=jti).first()
+    if blacklisted:
+        return None
+
+    return db.query(User).filter(User.id == user_id).first()
+
+# ROLE ACCESS
 def require_role(roles: list[str]):
     def role_checker(user: User = Depends(get_current_user)):  # chama apenas quando necessário
         if user.role not in roles:

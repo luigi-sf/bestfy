@@ -19,20 +19,20 @@ def get_user_service(db: Session = Depends(get_db)):
     return UserService(repo)
 
 
-# ✅ Rota pública: lista usuários
-@router.get("", response_model=list[UserResponse])  # <- sem "/"
+#lista usuários - ADMIN
+@router.get("/", response_model=list[UserResponse])  
 def list_users(service: UserService = Depends(get_user_service),
-               current_user: User | None = Depends(get_optional_user)):
+               ):
     return service.list()
 
 
-# ✅ Criar usuário (pode ser público ou protegido conforme regra sua)
+#Criar usuário 
 @router.post("/", response_model=UserResponse, status_code=201)
 def create(user: UserCreate, service: UserService = Depends(get_user_service)):
     return service.create(user)
 
 
-# ✅ Rota logado
+# Rota logado
 @router.get("/me", response_model=UserResponse)
 def me(current_user: User = Depends(get_current_user)):
     return current_user
@@ -44,7 +44,7 @@ def update_me(user: UserUpdate, service: UserService = Depends(get_user_service)
     return service.update(current_user.id, user)
 
 
-# ✅ Rota admin, evita conflito de path usando "by-id" no path
+# get_by_id - ADMIN
 @router.get("/by-id/{user_id}", response_model=UserResponse)
 def get_by_id(user_id: UUID, service: UserService = Depends(get_user_service),
               current_user: User = Depends(require_role(["admin"]))):
@@ -57,24 +57,24 @@ def update(user_id: UUID, user: UserUpdate, service: UserService = Depends(get_u
     return service.update(user_id, user, current_user)
 
 
-# ✅ Logout (logado)
+# Logout 
 @router.post("/logout")
-def logout(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db),
-           current_user: User = Depends(get_current_user)):
-    blacklisted = TokenBlacklist(token=token)
-    db.add(blacklisted)
-    db.commit()
+def logout(
+    token: str = Depends(oauth2_scheme),
+    service: UserService = Depends(get_user_service)
+):
+    service.logout(token)
     return {"message": "Logged out successfully"}
 
 
-# ✅ Deletar próprio usuário
+#  Deletar próprio usuário
 @router.delete("/me", response_model=UserResponse)
 def delete_me(service: UserService = Depends(get_user_service),
               current_user: User = Depends(get_current_user)):
     return service.delete(current_user.id)
 
 
-# ✅ Deletar outro usuário (admin)
+# Deletar outro usuário - ADMIN
 @router.delete("/by-id/{user_id}", response_model=UserResponse)
 def delete(user_id: UUID, service: UserService = Depends(get_user_service),
            current_user: User = Depends(require_role(["admin"]))):

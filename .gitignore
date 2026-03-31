@@ -1,0 +1,89 @@
+# =========================
+# 🔐 ENV (SENSÍVEL)
+# =========================
+.env
+.env.*
+*.env
+
+# =========================
+# 🐍 PYTHON (BACKEND)
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# virtualenv
+venv/
+env/
+.venv/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# logs
+*.log
+
+# SQLite (se usar)
+*.db
+
+# =========================
+# 🕷️ SCRAPY
+# =========================
+.scrapy/
+*.json
+*.csv
+*.jl
+
+# =========================
+# ⚛️ FRONTEND (REACT / VITE)
+# =========================
+node_modules/
+dist/
+build/
+.vite/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# 📦 PACKAGE MANAGERS
+# =========================
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# =========================
+# 🧠 TYPESCRIPT
+# =========================
+*.tsbuildinfo
+
+# =========================
+# 💻 IDEs / EDITORES
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# 🪟 SISTEMA (WINDOWS/MAC)
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# 🔑 TOKENS / SEGURANÇA
+# =========================
+*.pem
+*.key
+*.crt
+
+# =========================
+# 🚀 BUILD / CACHE
+# =========================
+.cache/
+.tmp/
