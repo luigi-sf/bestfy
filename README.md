@@ -1,51 +1,85 @@
-🎵 Spotify Scraper & Fullstack Platform
+# 🎵 Spotify Scraper & Data Platform
 
-Aplicação fullstack para coleta, processamento e visualização de dados do Spotify, combinando scraping automatizado, API performática e interface moderna.
+Aplicação fullstack para **extração, processamento e disponibilização de dados do Spotify**, utilizando scraping automatizado, API performática e interface moderna.
 
-🚀 Stack Tecnológica
-🔎 Scraping
-🕷️ Scrapy
-🎭 Playwright
-⚙️ Backend
-⚡ FastAPI
-🐍 Python + Poetry
-🔐 JWT + JTI
-🚫 Blacklist de tokens
-🧠 Controle de acesso com RBAC (roles)
-🎨 Frontend
-⚛️ React
-🎨 Tailwind CSS
-📌 Funcionalidades
-🔍 Scraping de artistas, álbuns e músicas
-📦 Armazenamento e organização dos dados
-🔐 Autenticação segura com JWT
-🚫 Logout com invalidação via blacklist (JTI)
-🧠 Controle de acesso baseado em roles (RBAC)
-⚡ API REST performática
-💻 Interface moderna e responsiva
-🧠 Arquitetura
+---
+
+## 🚀 Tecnologias
+
+### 🔎 Scraping
+- Scrapy  
+- Playwright  
+
+### ⚙️ Backend
+- FastAPI  
+- Python  
+- Poetry  
+- JWT + JTI  
+- Blacklist de tokens  
+- RBAC (controle de acesso por roles)  
+
+### 🎨 Frontend
+- React  
+- Tailwind CSS  
+
+---
+
+## 📦 Funcionalidades
+
+### 🔍 Scraping
+- Extração de artistas, álbuns e músicas  
+- Navegação automatizada com Playwright  
+- Pipeline de processamento de dados  
+
+### 🔐 Autenticação & Segurança
+- Login e cadastro  
+- JWT com identificador único (JTI)  
+- Blacklist para invalidação de tokens  
+- Controle de acesso com roles (RBAC)  
+
+### 📊 API
+- Listagem de artistas  
+- Listagem de álbuns  
+- Listagem de músicas  
+- Estrutura escalável em camadas  
+
+### 💻 Frontend
+- Interface moderna e responsiva  
+- Consumo da API  
+- Gerenciamento de estado  
+
+---
+
+## 🧠 Arquitetura
+
+
 scraper/
- ├── spiders/
- ├── pipelines/
+├── spiders/
+├── pipelines/
 
 backend/
- ├── app/
- │   ├── routes/
- │   ├── services/
- │   ├── repositories/
- │   ├── models/
- │   └── core/
+├── app/
+│ ├── routes/
+│ ├── services/
+│ ├── repositories/
+│ ├── models/
+│ └── core/
 
 frontend/
- ├── src/
- │   ├── components/
- │   ├── pages/
- │   ├── hooks/
- │   └── services/
+├── src/
+│ ├── components/
+│ ├── pages/
+│ ├── hooks/
+│ └── services/
 
- 
-⚙️ Setup do Projeto
-1️⃣ Clone o repositório
+
+---
+
+## ⚙️ Como rodar o projeto
+
+### 1️⃣ Clone o repositório
+
+bash
 git clone https://github.com/seu-usuario/seu-repo.git
 cd seu-repo
 
@@ -53,7 +87,7 @@ cd seu-repo
 Instalar dependências
 cd backend
 poetry install
-Rodar o servidor
+Rodar aplicação
 make start
 
 🔎 Scraper (Scrapy + Playwright)
@@ -61,32 +95,24 @@ cd scraper
 poetry install
 scrapy crawl nome_do_spider
 
-🎨 Frontend (React)
+🎨 Frontend
 cd frontend
 npm install
 npm run dev
 
-🔐 Autenticação & Segurança
-🔑 Autenticação via JWT
-🆔 Identificação única com JTI
-🚫 Blacklist para invalidação de tokens
-🧠 Controle de acesso com RBAC (roles)
 🔐 Autorização (Roles)
+USER → acesso padrão
+ADMIN → acesso administrativo
 
-O sistema implementa controle de acesso baseado em papéis:
-
-👤 USER → acesso padrão
-🛠️ ADMIN → acesso a operações administrativas
-
-As permissões são aplicadas nas rotas da API para garantir segurança e isolamento de responsabilidades.
 
 🤖 Melhorias Futuras
-🎯 Sistema de recomendação com Machine Learning
-📊 Dashboard analítico
-🔎 Busca avançada e filtros inteligentes
-❤️ Sistema de favoritos
-☁️ Deploy com Docker
-🔄 Pipeline automatizado de scraping
+Sistema de recomendação com Machine Learning
+Dashboard analítico
+Busca avançada
+Sistema de favoritos
+Deploy com Docker
+Automação de scraping
+
 
 👨‍💻 Autor
 
