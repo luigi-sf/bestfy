@@ -21,9 +21,9 @@ def get_current_user(
     if not token:
         raise HTTPException(401, "Token não fornecido")
 
-    try:
-        payload = decode_token(token)
-    except Exception:
+    payload = decode_token(token)
+
+    if payload is None:  
         raise HTTPException(401, "Token inválido")
 
     jti = payload.get("jti")
@@ -32,7 +32,6 @@ def get_current_user(
     if not jti or not user_id:
         raise HTTPException(401, "Token inválido")
 
-    # verifica blacklist corretamente
     blacklisted = db.query(TokenBlacklist).filter_by(jti=jti).first()
 
     if blacklisted:
@@ -69,7 +68,7 @@ def get_optional_user(
     if blacklisted:
         return None
 
-    return db.query(User).filter(User.id == user_id).first()
+    return db.query(User).filter(User.id == payload["sub"]).first()
 
 # ROLE ACCESS
 def require_role(roles: list[str]):

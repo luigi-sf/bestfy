@@ -65,7 +65,7 @@ class PlaylistRepository:
     def get_by_artist(self, artist_name: str):
         return (
         self.db.query(Playlist)
-        .filter(func.lower(Playlist.artista).contains(artist_name.lower()))
+        .filter(Playlist.artista.contains([artist_name]))
         .all()
     )
         

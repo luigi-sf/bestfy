@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./components/hooks/useAuth";
 
 import LoginPage from "./pages/auth/login";
 import SignupPage from "./pages/auth/signup";
@@ -12,17 +11,18 @@ import PrivateRoute from "./components/private_route";
 
 
 export default function App() {
-  const { token } = useAuth();
-
-  console.log("TOKEN:", token);
-
   return (
     <Routes>
-      {/* AUTH PAGES */}
+      {/* AUTH */}
       <Route path="/register" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
 
-      {/* APP PROTEGIDO */}
+      {/* PÚBLICO */}
+      <Route element={<AppLayout />}>
+        <Route path="/" element={<Home />} />
+      </Route>
+
+      {/* PROTEGIDO */}
       <Route
         element={
           <PrivateRoute>
@@ -30,7 +30,6 @@ export default function App() {
           </PrivateRoute>
         }
       >
-        <Route path="/" element={<Home />} />
         <Route path="/artist/:name" element={<ArtistPage />} />
         <Route path="/album/:name" element={<AlbumPage />} />
       </Route>
